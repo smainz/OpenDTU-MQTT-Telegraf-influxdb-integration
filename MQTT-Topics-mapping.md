@@ -18,12 +18,14 @@ The base topic, as configured in the web GUI is prepended to all follwing topics
 
 ### Mapping to InfluxDB
 
-measurement=dtu
-dtu=199980164016
-field=hostname
-value=xxxx
+```
+measurement = dtu
+dtu = [dtuserial]
+field = hostname | ip | rssi | status | uptime
+value = xxxx
+```
 
-## Inverter total topics (AC and DC)
+## Totals (AC and DC) per DTU
 
 Enabled inverter means, that only inverters with "Poll inverter data" enabled are considered.
 
@@ -39,11 +41,13 @@ Enabled inverter means, that only inverters with "Poll inverter data" enabled ar
 
 ### Mapping to InfluxDB
 
-measurement=dtu_totals
-dtu=[dtuserial]
-channel=AC | DC
-field=power | yieldtotal | yieldday | is_valid | irradiation
+```
+measurement = dtu_totals
+dtu = [dtuserial]
+channel = AC | DC
+field  = power | yieldtotal | yieldday | is_valid | irradiation
 value=xxxx
+```
 
 ## Inverter specific topics
 
@@ -65,11 +69,15 @@ value=xxxx
 | [dtuserial]/inverters/[serial]/uptime                    |                                         | R     |                                                      |                            |
 | [dtuserial]/inverters/[serial]/status                    |                                         | R     |                                                      |                            |
 
+### Mapping to InfluxDB
+
+```
 measurement = inverter
 dtu = [dtuserial]
 inverter = [serial]
 field = name | bootloaderversion | fwbuildversion | fwbuilddatetime | hwpartnumber | hwversion | maxpower | producing | last_update | temperature | limit_relative | limit_absolute | uptime | status
 value = xxxx
+```
 
 ## AC channel total per inverter
 
@@ -82,14 +90,16 @@ value = xxxx
 
 ### Mapping to InfluxDB
 
-measurement=inverter_totals
-dtu=[dtuserial]
-inverter=[serial]
-channel=AC
-field=current | frequency | yieldday | yieldday
-value=xxxx
+```
+measurement = inverter_totals
+dtu = [dtuserial]
+inverter = [serial]
+channel = AC
+field = current | frequency | yieldday | yieldday
+value = xxxx
+```
 
-## AC channel per inverter andphase
+## AC channel per inverter and phase
 
 | Topic(new)                                               | Topic (old)                  | R / W | Description                                     | Value / Unit               |
 | -------------------------------------------------------- | ---------------------------- | ----- | ----------------------------------------------- | -------------------------- |
@@ -97,7 +107,6 @@ value=xxxx
 |                                                          | [serial]/0/efficiency        | R     | Ratio AC Power over DC Power in percent         | %                          |
 |                                                          | [serial]/0/frequency         | R     | AC frequency in hertz                           | Hertz (Hz)                 |
 | [dtuserial]/inverters/[serial]/phase/[1-N]/power         | [serial]/0/power             | R     | AC active power in watts                        | Watt (W)                   |
-|                                                          | [serial]/0/powerdc           | R     | DC power in watts                               | Watt (W)                   |
 | [dtuserial]/inverters/[serial]/phase/[1-N]/powerfactor   | [serial]/0/powerfactor       | R     | Power factor in percent                         | %                          |
 | [dtuserial]/inverters/[serial]/phase/[1-N]/reactivepower | [serial]/0/reactivepower     | R     | AC reactive power in VAr                        | VAr                        |
 | [dtuserial]/inverters/[serial]/phase/[1-N]/voltage       | [serial]/0/voltage           | R     | AC voltage in volt                              | Volt (V)                   |
@@ -107,15 +116,17 @@ value=xxxx
 
 ### Mapping to InfluxDB
 
-measurement=
-dtu=[dtuserial]
-inverter=[serial]
-channel=AC
-phase= 1-N
-field=current | frequency | yieldday | yieldday
+```
+measurement  = inverter_details
+dtu = [dtuserial]
+inverter = [serial]
+channel = AC
+phase = 1-N
+field = current | power | powerfactor | reactivepower | voltage | yieldday | yieldday
 value=xxxx
+```
 
-### DC input channel topics per inverter
+## DC input channel topics per inverter
 
 Totals:
 
@@ -127,14 +138,16 @@ Totals:
 
 ### Mapping to InfluxDB
 
+```
 measurement = inverter_totals
 dtu = [dtuserial]
 inverter = [serial]
 channel = DC
 field = power | current | irradiation
 value = xxxx
+```
 
-### DC input channel topics per inverter per string:
+## DC input channel topics per inverter per string
 
 | Topic(new)                                              | Topic (old)                    | R / W | Description                                          | Value / Unit               |
 | ------------------------------------------------------- | ------------------------------ | ----- | ---------------------------------------------------- | -------------------------- |
@@ -149,13 +162,15 @@ value = xxxx
 
 ### Mapping to InfluxDB
 
-measurement=
+```
+measurement = inverter_details
 dtu = [dtuserial]
 inverter = [serial]
 channel = DC
 string = 1-N
-field = power | current | irradiation
+field = current | name | irridiation | power | voltage | yieldday | yieldtotal
 value = xxxx
+```
 
 ### Topics to set values
 
