@@ -3,9 +3,9 @@
 The base topic, as configured in the web GUI is prepended to all follwing topics.
 `[dtuserial]` will be replaced with the serial number of the DTU.
 `[serial]` will be replaced with the serial number of the inverter.
-`[1-N]` willbe replaced with the number of the output phase (for AC values ) or input string (for DC values).
+`[1-N]` will be replaced with the number of the output phase (for AC values ) or input string (for DC values).
 
-## General topics
+## General DTU topics
 
 | Topic(new)           | Topic (old)                             | R / W | Description                                          | Value / Unit               |
 | -------------------- | --------------------------------------- | ----- | ---------------------------------------------------- | -------------------------- |
@@ -16,38 +16,51 @@ The base topic, as configured in the web GUI is prepended to all follwing topics
 | [dtuserial]/uptime   | dtu/uptime                              | R     | Time in seconds since startup                        | seconds                    |
 | [dtuserial]/git_hash |                                         | R     | git hash of the current software version             | string                     |
 
-### Mapping to InfluxDB
+Mapped to InfluxDB as measurement ("table") `dtu`:
 
-```
-measurement = dtu
-dtu = [dtuserial]
-field = hostname | ip | rssi | status | uptime
-value = xxxx
-```
+| dtu         | field | value | timestamp |
+|-------------|-------|-------|-----------|
+| [dtuserial] | ...   | ...   | ...       |
 
-## Totals (AC and DC) per DTU
+Valid *field*s:  `hostname` | `ip` | `rssi` | `status` | `uptime`
+
+
+## Output (AC) per DTU
 
 Enabled inverter means, that only inverters with "Poll inverter data" enabled are considered.
 
-| Topic(new)                 | Topic (old)                       | R / W | Description                                          | Value / Unit               |
-| -------------------------- | --------------------------------- | ----- | ---------------------------------------------------- | -------------------------- |
-| [dtuserial]/ac/power       | ac/power                          | R     | Sum of AC active power of all enabled inverters      | W                          |
-| [dtuserial]/ac/yieldtotal  | ac/yieldtotal                     | R     | Sum of energy converted to AC since reset watt hours of all enabled inverters | Kilo watt hours (kWh) |
-| [dtuserial]/ac/yieldday    | ac/yieldday                       | R     | Sum of energy converted to AC per day in watt hours of all enabled inverters  | Watt hours (Wh)
-| [dtuserial]/ac/is_valid    | ac/is_valid                       | R     | Indicator whether all enabled inverters where reachable | 0 or 1                  |
-| [dtuserial]/dc/power       | dc/power                          | R     | Sum of DC power of all enabled inverters             | Watt (W)                   |
-| [dtuserial]/dc/irradiation | dc/irradiation                    | R     | Produced power of all enabled inverter stripes with defined irradiation settings divided by sum of all enabled inverters irradiation | % |
-| [dtuserial]/dc/is_valid    | dc/is_valid                       | R     | Indicator whether all enabled inverters where reachable | 0 or 1                  |
+| Topic(new)                 | Topic (old)        | R / W | Description                                          | Value / Unit               |
+| -------------------------- | ------------------ | ----- | ---------------------------------------------------- | -------------------------- |
+| [dtuserial]/ac/power       | ac/power           | R     | Sum of AC active power of all enabled inverters      | W                          |
+| [dtuserial]/ac/yieldtotal  | ac/yieldtotal      | R     | Sum of energy converted to AC since reset watt hours of all enabled inverters | Kilo watt hours (kWh) |
+| [dtuserial]/ac/yieldday    | ac/yieldday        | R     | Sum of energy converted to AC per day in watt hours of all enabled inverters  | Watt hours (Wh)
+| [dtuserial]/ac/is_valid    | ac/is_valid        | R     | Indicator whether all enabled inverters where reachable | 0 or 1                  |
 
-### Mapping to InfluxDB
+Mapped to InfluxDB as measurement ("table") `output_per_dtu`:
 
-```
-measurement = dtu_totals
-dtu = [dtuserial]
-channel = AC | DC
-field  = power | yieldtotal | yieldday | is_valid | irradiation
-value=xxxx
-```
+| dtu         | field | value | timestamp |
+|-------------|-------|-------|-----------|
+| [dtuserial] | ...   | ...   | ...       |
+
+Valid *field*s:  `power` | `yieldtotal` | `yieldday` | `is_valid`
+
+
+## Input (DC) per DTU
+
+| Topic(new)                 | Topic (old)        | R / W | Description                                          | Value / Unit               |
+| -------------------------- | -------------------| ----- | ---------------------------------------------------- | -------------------------- |
+| [dtuserial]/dc/power       | dc/power           | R     | Sum of DC power of all enabled inverters             | Watt (W)                   |
+| [dtuserial]/dc/irradiation | dc/irradiation     | R     | Produced power of all enabled inverter stripes with defined irradiation settings divided by sum of all enabled inverters irradiation | % |
+| [dtuserial]/dc/is_valid    | dc/is_valid        | R     | Indicator whether all enabled inverters where reachable | 0 or 1                  |
+
+Mapped to InfluxDB as measurement ("table") `input_per_dtu`:
+
+| dtu         | field | value | timestamp |
+|-------------|-------|-------|-----------|
+| [dtuserial] | ...   | ...   | ...       |
+
+Valid *field*s:  `power` | `irradiation` | `is_valid`
+
 
 ## Inverter specific topics
 
@@ -69,37 +82,55 @@ value=xxxx
 | [dtuserial]/inverters/[serial]/uptime                    |                                         | R     |                                                      |                            |
 | [dtuserial]/inverters/[serial]/status                    |                                         | R     |                                                      |                            |
 
-### Mapping to InfluxDB
+Mapped to InfluxDB as measurement ("table") `inverter`:
 
-```
-measurement = inverter
-dtu = [dtuserial]
-inverter = [serial]
-field = name | bootloaderversion | fwbuildversion | fwbuilddatetime | hwpartnumber | hwversion | maxpower | producing | last_update | temperature | limit_relative | limit_absolute | uptime | status
-value = xxxx
-```
+| dtu         | inverter | field | value | timestamp |
+|-------------|----------|-------|-------|-----------|
+| [dtuserial] | [serial] | ...   | ...   | ...       |
 
-## AC channel total per inverter
+Valid *field*s:  `name` | `bootloaderversion` | `fwbuildversion` | `fwbuilddatetime` | `hwpartnumber` | `hwversion` | `maxpower` | `producing` | `last_update` | `temperature` | `limit_relative` | `limit_absolute` | `uptime` | `status`
+
+
+## Output (AC) per inverter
 
 | Topic(new)                                   | Topic (old)                  | R / W | Description                                          | Value / Unit               |
 | -------------------------------------------- | ---------------------------- | ----- | ---------------------------------------------------- | -------------------------- |
 | [dtuserial]/inverters/[serial]/ac/current    | [serial]/0/current           | R     | AC current in ampere                                 | Ampere (A)                 |
 | [dtuserial]/inverters/[serial]/ac/frequency  | [serial]/0/frequency         | R     | AC frequency in hertz                                | Hertz (Hz)                 |
 | [dtuserial]/inverters/[serial]/ac/yieldday   | [serial]/0/yieldday          | R     | Energy converted to AC per day in watt hours         | Watt hours (Wh)            |
-| [dtuserial]/inverters/[serial]/ac/yieldday | [serial]/0/yieldtotal        | R     | Energy converted to AC since reset watt hours        | Kilo watt hours (kWh)      |
+| [dtuserial]/inverters/[serial]/ac/yieldday   | [serial]/0/yieldtotal        | R     | Energy converted to AC since reset watt hours        | Kilo watt hours (kWh)      |
 
-### Mapping to InfluxDB
 
-```
-measurement = inverter_totals
-dtu = [dtuserial]
-inverter = [serial]
-channel = AC
-field = current | frequency | yieldday | yieldday
-value = xxxx
-```
+Mapped to InfluxDB as measurement ("table") `output_per_inverter`:
 
-## AC channel per inverter and phase
+| dtu         | inverter | field | value | timestamp |
+|-------------|----------|-------|-------|-----------|
+| [dtuserial] | [serial] | ...   | ...   | ...       |
+
+Valid *field*s:  `current` | `frequency` | `yieldday` | `yieldday`
+
+
+## Input (DC) per inverter
+
+Totals:
+
+| Topic(new)                                    | Topic (old)                  | R / W | Description            | Value / Unit 
+| --------------------------------------------- | ---------------------------- | ----- | ---------------------- | ------------------------ |
+| [dtuserial]/inverters/[serial]/dc/power       | [serial]/0/powerdc           | R     | DC power in watts      | Watt (W)                 |
+| [dtuserial]/inverters/[serial]/dc/current     |                              | R     | DC current             | Ampere (A)               |
+| [dtuserial]/inverters/[serial]/dc/irradiation |                              | R     |                        |                          |
+
+
+Mapped to InfluxDB as measurement ("table") `input_per_inverter`:
+
+| dtu         | inverter | field | value | timestamp |
+|-------------|----------|-------|-------|-----------|
+| [dtuserial] | [serial] | ...   | ...   | ...       |
+
+Valid *field*s:  `power` 
+
+
+## Output (AC) per inverter and phase
 
 | Topic(new)                                               | Topic (old)                  | R / W | Description                                     | Value / Unit               |
 | -------------------------------------------------------- | ---------------------------- | ----- | ----------------------------------------------- | -------------------------- |
@@ -114,40 +145,16 @@ value = xxxx
 | [dtuserial]/inverters/[serial]/phase/[1-N]/yieldtotal    | [serial]/0/yieldtotal        | R     | Energy converted to AC since reset watt hours   | Kilo watt hours (kWh)      |
 | [dtuserial]/inverters/[serial]/phase/[1-N]/name          |                              | R     |                                                 |
 
-### Mapping to InfluxDB
+Mapped to InfluxDB as measurement ("table") `output`:
 
-```
-measurement  = inverter_details
-dtu = [dtuserial]
-inverter = [serial]
-channel = AC
-phase = 1-N
-field = current | power | powerfactor | reactivepower | voltage | yieldday | yieldday
-value=xxxx
-```
+| dtu         | inverter | phase | field | value | timestamp |
+|-------------|----------|-------|-------|-------|-----------|
+| [dtuserial] | [serial] | [1-N] | ...   | ...   | ...       |
 
-## DC input channel topics per inverter
+Valid *field*s:  `current` | `power` | `powerfactor` | `reactivepower` | `voltage` | `yieldday` | `yieldday`
 
-Totals:
 
-| Topic(new)                                    | Topic (old)                  | R / W | Description            | Value / Unit 
-| --------------------------------------------- | ---------------------------- | ----- | ---------------------- | ------------------------ |
-| [dtuserial]/inverters/[serial]/dc/power       | [serial]/0/powerdc           | R     | DC power in watts      | Watt (W)                 |
-| [dtuserial]/inverters/[serial]/dc/current     |                              | R     | DC current             | Ampere (A)               |
-| [dtuserial]/inverters/[serial]/dc/irradiation |                              | R     |                        |                          |
-
-### Mapping to InfluxDB
-
-```
-measurement = inverter_totals
-dtu = [dtuserial]
-inverter = [serial]
-channel = DC
-field = power | current | irradiation
-value = xxxx
-```
-
-## DC input channel topics per inverter per string
+## Input (DC) per inverter and string
 
 | Topic(new)                                              | Topic (old)                    | R / W | Description                                          | Value / Unit               |
 | ------------------------------------------------------- | ------------------------------ | ----- | ---------------------------------------------------- | -------------------------- |
@@ -160,17 +167,14 @@ value = xxxx
 | [dtuserial]/inverters/[serial]/string/[1-N]/yieldtotal  | [serial]/[1-4]/yieldtotal      | R     | Energy converted to AC since reset on specific input | Kilo watt hours (kWh)      |
 | [dtuserial]/inverters/[serial]/string/[1-N]/maxpower    |                                | R     |                                                      |                            |
 
-### Mapping to InfluxDB
+Mapped to InfluxDB as measurement ("table") `input`:
 
-```
-measurement = inverter_details
-dtu = [dtuserial]
-inverter = [serial]
-channel = DC
-string = 1-N
-field = current | name | irridiation | power | voltage | yieldday | yieldtotal
-value = xxxx
-```
+| dtu         | inverter | string | field | value | timestamp |
+|-------------|----------|--------|-------|-------|-----------|
+| [dtuserial] | [serial] | [1-N]  | ...   | ...   | ...       |
+
+Valid *field*s:  `current` | `name` | `irridiation` | `power` | `voltage` | `yieldday` | `yieldtotal`
+
 
 ### Topics to set values
 
@@ -183,4 +187,4 @@ value = xxxx
 | [dtuserial]/inverters/[serial]/cmd/power                        | [serial]/cmd/power                        | W     | Turn the inverter on (1) or off (0)                 | 0 or 1                     |
 | [dtuserial]/inverters/[serial]/cmd/restart                      | [serial]/cmd/restart                      | W     | Restarts the inverters (also resets YieldDay)       | 1                          |
 
-Not mapped to InfluxDB
+Not mapped to InfluxDB!
