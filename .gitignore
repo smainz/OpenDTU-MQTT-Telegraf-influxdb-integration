@@ -1,0 +1,3 @@
+# Ignore local settings
+telegraf-settings.env
+docker-compose.override.yml
