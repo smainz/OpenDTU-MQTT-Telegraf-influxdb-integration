@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  telegraf:
+    image: telegraf
+    restart: unless-stopped
+    user: 1013:995    # Change to whatever suits your needs
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    env_file:
+      - telegraf-settings.env
