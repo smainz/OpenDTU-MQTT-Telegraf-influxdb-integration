@@ -50,6 +50,7 @@ Valid *field*s:  `power` | `yieldtotal` | `yieldday` | `is_valid`
 | Topic(new)                 | Topic (old)        | R / W | Description                                          | Value / Unit               |
 | -------------------------- | -------------------| ----- | ---------------------------------------------------- | -------------------------- |
 | [dtuserial]/dc/power       | dc/power           | R     | Sum of DC power of all enabled inverters             | Watt (W)                   |
+| [dtuserial]/dc/current     | --                 | R     |                                                      |                            |     
 | [dtuserial]/dc/irradiation | dc/irradiation     | R     | Produced power of all enabled inverter stripes with defined irradiation settings divided by sum of all enabled inverters irradiation | % |
 | [dtuserial]/dc/is_valid    | dc/is_valid        | R     | Indicator whether all enabled inverters where reachable | 0 or 1                  |
 
@@ -59,7 +60,7 @@ Mapped to InfluxDB as measurement ("table") `input_per_dtu`:
 |-------------|-------|-------|-----------|
 | [dtuserial] | ...   | ...   | ...       |
 
-Valid *field*s:  `power` | `irradiation` | `is_valid`
+Valid *field*s:  `power` | `irradiation` | `is_valid` | ~~`current`~~
 
 
 ## Inverter specific topics
@@ -94,11 +95,12 @@ Valid *field*s:  `name` | `bootloaderversion` | `fwbuildversion` | `fwbuilddatet
 ## Output (AC) per inverter
 
 | Topic(new)                                   | Topic (old)                  | R / W | Description                                          | Value / Unit               |
-| -------------------------------------------- | ---------------------------- | ----- | ---------------------------------------------------- | -------------------------- |
-| [dtuserial]/inverters/[serial]/ac/current    | [serial]/0/current           | R     | AC current in ampere                                 | Ampere (A)                 |
-| [dtuserial]/inverters/[serial]/ac/frequency  | [serial]/0/frequency         | R     | AC frequency in hertz                                | Hertz (Hz)                 |
-| [dtuserial]/inverters/[serial]/ac/yieldday   | [serial]/0/yieldday          | R     | Energy converted to AC per day in watt hours         | Watt hours (Wh)            |
-| [dtuserial]/inverters/[serial]/ac/yieldday   | [serial]/0/yieldtotal        | R     | Energy converted to AC since reset watt hours        | Kilo watt hours (kWh)      |
+| -------------------------------------------- | --------------------- | ----- | ---------------------------------------------------- | --------------------- |
+| [dtuserial]/inverters/[serial]/ac/current    | [serial]/0/current    | R     | AC current in ampere                                 | Ampere (A)            |
+| [dtuserial]/inverters/[serial]/ac/power      | [serial]/0/power      | R     | AC active power in watts                             | Watt (W)              |
+| [dtuserial]/inverters/[serial]/ac/yieldday   | [serial]/0/yieldday   | R     | Energy converted to AC per day in watt hours         | Watt hours (Wh)       |
+| [dtuserial]/inverters/[serial]/ac/yieldday   | [serial]/0/yieldtotal | R     | Energy converted to AC since reset watt hours        | Kilo watt hours (kWh) |
+| [dtuserial]/inverters/[serial]/ac/frequency  | [serial]/0/frequency  | R     | AC frequency in hertz                                | Hertz (Hz)            |
 
 
 Mapped to InfluxDB as measurement ("table") `output_per_inverter`:
@@ -107,7 +109,7 @@ Mapped to InfluxDB as measurement ("table") `output_per_inverter`:
 |-------------|----------|-------|-------|-----------|
 | [dtuserial] | [serial] | ...   | ...   | ...       |
 
-Valid *field*s:  `current` | `frequency` | `yieldday` | `yieldday`
+Valid *field*s:  `current` | `power` | `yieldday` | `yieldday` | `frequency`
 
 
 ## Input (DC) per inverter
