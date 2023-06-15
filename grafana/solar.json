@@ -1,0 +1,1988 @@
+{
+    "__inputs": [
+      {
+        "name": "DS_INFLUXDB",
+        "label": "InfluxDB",
+        "description": "",
+        "type": "datasource",
+        "pluginId": "influxdb",
+        "pluginName": "InfluxDB"
+      },
+      {
+        "name": "DS_SUN_AND MOON",
+        "label": "Sun and Moon",
+        "description": "",
+        "type": "datasource",
+        "pluginId": "fetzerch-sunandmoon-datasource",
+        "pluginName": "Sun and Moon"
+      },
+      {
+        "name": "VAR_CITY_ID",
+        "type": "constant",
+        "label": "City used to get the weather",
+        "value": "",
+        "description": ""
+      },
+      {
+        "name": "VAR_LOCATION_LONGITUDE",
+        "type": "constant",
+        "label": "Longitude of the location of your solar panels",
+        "value": "",
+        "description": ""
+      },
+      {
+        "name": "VAR_LOCATION_LATITUDE",
+        "type": "constant",
+        "label": "Latitude of the location of your solar panels",
+        "value": "",
+        "description": ""
+      }
+    ],
+    "__elements": {},
+    "__requires": [
+      {
+        "type": "panel",
+        "id": "bargauge",
+        "name": "Bar gauge",
+        "version": ""
+      },
+      {
+        "type": "datasource",
+        "id": "fetzerch-sunandmoon-datasource",
+        "name": "Sun and Moon",
+        "version": "0.3.0"
+      },
+      {
+        "type": "grafana",
+        "id": "grafana",
+        "name": "Grafana",
+        "version": "9.4.7"
+      },
+      {
+        "type": "datasource",
+        "id": "influxdb",
+        "name": "InfluxDB",
+        "version": "1.0.0"
+      },
+      {
+        "type": "panel",
+        "id": "stat",
+        "name": "Stat",
+        "version": ""
+      },
+      {
+        "type": "panel",
+        "id": "table",
+        "name": "Table",
+        "version": ""
+      },
+      {
+        "type": "panel",
+        "id": "timeseries",
+        "name": "Time series",
+        "version": ""
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "grafana",
+            "uid": "-- Grafana --"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 43,
+        "panels": [],
+        "title": "Übersicht",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "blue",
+              "mode": "fixed"
+            },
+            "decimals": 2,
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "kwatth"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 15,
+          "x": 0,
+          "y": 1
+        },
+        "id": 38,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {},
+          "textMode": "value"
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: 1)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\n  |> last()\n  |> group( columns: [] )\n  |> sum()\n",
+            "refId": "Last Value"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": true,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: 1)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\r\n  |> aggregateWindow(every: 1h, fn: max, createEmpty: false)\r\n  |> group(columns: [\"_time\"])\r\n  |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n  |> group(columns: [\"\"])  \r\n  |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
+            "refId": "Graph"
+          }
+        ],
+        "title": "Produktion Total",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "mode": "lcd",
+                "type": "gauge"
+              },
+              "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "Datum"
+                },
+                {
+                  "id": "unit",
+                  "value": "time: DD.MM.YYYY"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "total"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "watth"
+                },
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "mode": "lcd",
+                    "type": "gauge"
+                  }
+                },
+                {
+                  "id": "custom.align",
+                  "value": "left"
+                },
+                {
+                  "id": "min",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 123
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 16,
+          "w": 9,
+          "x": 15,
+          "y": 1
+        },
+        "id": 24,
+        "options": {
+          "footer": {
+            "countRows": false,
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "frameIndex": 2,
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": true,
+              "displayName": "Datum"
+            }
+          ]
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "query": "import \"timezone\"\noption location = timezone.location(name: \"Europe/Berlin\")\n\nfrom(bucket: \"solar/actual\")\n  |> range(start: - 14d, stop: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_inverter\")\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\n  |> aggregateWindow(every: 1d, fn: max, createEmpty: false)\n  |> timeShift(duration: -1s)\n  |> drop(columns: [\"_start\", \"_stop\", \"_field\", \"_measurement\", \"dtu\"])\n  ",
+            "refId": "Je Inverter"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "import \"timezone\"\r\noption location = timezone.location(name: \"Europe/Berlin\")\r\n\r\nfrom(bucket: \"solar/actual\")\r\n  |> range(start: - 14d, stop: today())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\r\n  |> drop( columns: [\"dtu\"] )\r\n  |> aggregateWindow(every: 1d, fn: max, createEmpty: false)\r\n  |> timeShift(duration: -2h, columns: [\"_time\"])   // Compensate the time shift introduced by aggregateWindow  \r\n  |> group(columns: [\"_time\"])\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n  |> group(columns: [\"\"])  \r\n  |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])\r\n  |> rename(columns: {_value: \"total\", _time: \"Time\"})",
+            "refId": "Total"
+          }
+        ],
+        "title": "Letzte 14 Tage",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "continuous-RdYlGr"
+            },
+            "decimals": 1,
+            "mappings": [],
+            "min": 0,
+            "noValue": "0 W",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 100
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 300
+                }
+              ]
+            },
+            "unit": "watt"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 5,
+          "x": 0,
+          "y": 5
+        },
+        "id": 36,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {},
+          "textMode": "auto"
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today(), stop: -10s)  // Last time bucket may not have all values\r\n  |> filter( fn: (r) => r[\"_measurement\"] == \"input_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\r\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\r\n |> group(columns: [\"_time\"])\r\n |> aggregateWindow(every: 10s, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n |> group(columns: [\"\"])  \r\n |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
+            "refId": "B"
+          }
+        ],
+        "title": "Aktuelle Leistung AC",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "continuous-GrYlRd"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 100
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 300
+                }
+              ]
+            },
+            "unit": "watt"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 5,
+          "x": 5,
+          "y": 5
+        },
+        "id": 13,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "max"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\r\n  |> max()\r\n  |> group(columns: [])\r\n  |> sum()",
+            "refId": "Total"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": true,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"channel\")\r\n  |> filter(fn: (r) => r[\"channel_type\"] == \"AC\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\r\n  |> aggregateWindow(every: 1m, fn: max, createEmpty: false)\r\n  |> group(columns: [\"_time\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> group(columns: [\"\"])  \r\n  |> drop(  columns: [\"_start\",\"_stop\"])",
+            "refId": "A"
+          }
+        ],
+        "title": "Spitzenleistung Heute",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "blue",
+              "mode": "continuous-RdYlGr"
+            },
+            "decimals": 2,
+            "mappings": [],
+            "max": 5000,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "watth"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 5,
+          "x": 10,
+          "y": 5
+        },
+        "id": 39,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {},
+          "textMode": "value"
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\n  |> last()\n  |> group( columns: [] )\n  |> sum()",
+            "refId": "Value only"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": true,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\r\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\r\n |> group(columns: [\"_time\"])\r\n |> aggregateWindow(every: 10s, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n |> group(columns: [\"\"])  \r\n |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
+            "refId": "Graph"
+          }
+        ],
+        "title": "Produktion Heute",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "continuous-RdYlGr"
+            },
+            "decimals": 1,
+            "displayName": "Inverter ${__field.labels.inverter}",
+            "mappings": [],
+            "max": 300,
+            "min": 0,
+            "noValue": "0 W",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 150
+                }
+              ]
+            },
+            "unit": "watt"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 5,
+          "x": 0,
+          "y": 9
+        },
+        "id": 25,
+        "options": {
+          "displayMode": "lcd",
+          "minVizHeight": 10,
+          "minVizWidth": 0,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_inverter\")\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\n  |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Aktuelle Leistung AC",
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "continuous-RdYlGr"
+            },
+            "displayName": "Inverter ${__field.labels.inverter}",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "watt"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 5,
+          "x": 5,
+          "y": 9
+        },
+        "id": 37,
+        "options": {
+          "displayMode": "lcd",
+          "minVizHeight": 10,
+          "minVizWidth": 0,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_inverter\")\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\n  |> max()\n",
+            "refId": "per Inverter"
+          }
+        ],
+        "title": "Spitzenleistung Heute",
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "blue",
+              "mode": "continuous-RdYlGr"
+            },
+            "decimals": 2,
+            "displayName": "Inverter ${__field.labels.inverter}",
+            "mappings": [],
+            "max": 5000,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "watth"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 5,
+          "x": 10,
+          "y": 9
+        },
+        "id": 7,
+        "options": {
+          "displayMode": "lcd",
+          "minVizHeight": 10,
+          "minVizWidth": 0,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_inverter\")\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\n  |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Produktion Heute",
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "blue",
+              "mode": "fixed"
+            },
+            "decimals": 2,
+            "displayName": "Inverter ${__field.labels.inverter}",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "kwatth"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 0,
+          "y": 17
+        },
+        "id": 6,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {},
+          "textMode": "value_and_name"
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: 1)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_inverter\")\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\n  |> last()\n",
+            "refId": "Last Value"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": true,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: 1)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_inverter\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\r\n  |> aggregateWindow(every: 1h, fn: max, createEmpty: false)\r\n  |> group(columns: [\"_time\", \"inverter\"])\r\n  |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n  |> group(columns: [\"inverter\"])  \r\n  |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
+            "refId": "Graph"
+          }
+        ],
+        "title": "Produktion Total",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS_INFLUXDB}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "blue",
+              "mode": "continuous-RdYlGr"
+            },
+            "decimals": 2,
+            "mappings": [],
+            "max": 4000,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "watth"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 5,
+          "x": 8,
+          "y": 17
+        },
+        "id": 44,
+        "options": {
+          "displayMode": "lcd",
+          "minVizHeight": 10,
+          "minVizWidth": 0,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true
+        },
+        "pluginVersion": "9.4.7",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": true,
+            "query": "from(bucket: \"solar/actual\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\n  |> last()\n  |> group( columns: [] )\n  |> sum()",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "hide": false,
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldday\")\r\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\r\n |> group(columns: [\"_time\"])\r\n |> aggregateWindow(every: 10s, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n |> group(columns: [\"\"])  \r\n |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
+            "refId": "B"
+          }
+        ],
+        "title": "Produktion Heute",
+        "transparent": true,
+        "type": "bargauge"
+      },
+      {
+        "collapsed": true,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 21
+        },
+        "id": 41,
+        "panels": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "mappings": [],
+                "max": 2.5,
+                "min": 0,
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red"
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0.75
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.86
+                    }
+                  ]
+                },
+                "unit": "amp"
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "Strom"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "amp"
+                    },
+                    {
+                      "id": "displayName",
+                      "value": "Strom (${__field.labels.inverter})"
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "Spannung"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "volt"
+                    },
+                    {
+                      "id": "max",
+                      "value": 250
+                    },
+                    {
+                      "id": "thresholds",
+                      "value": {
+                        "mode": "absolute",
+                        "steps": [
+                          {
+                            "color": "green"
+                          },
+                          {
+                            "color": "#EAB839",
+                            "value": 240
+                          },
+                          {
+                            "color": "red",
+                            "value": 245
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "id": "displayName",
+                      "value": "Spannung (${__field.labels.inverter})"
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 7,
+              "w": 5,
+              "x": 0,
+              "y": 2
+            },
+            "id": 31,
+            "options": {
+              "displayMode": "lcd",
+              "minVizHeight": 10,
+              "minVizWidth": 0,
+              "orientation": "horizontal",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "showUnfilled": true
+            },
+            "pluginVersion": "9.4.7",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "query": "from(bucket: \"solar/actual\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current\"  )\n  |> last()",
+                "refId": "Strom"
+              },
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": false,
+                "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: -5m)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"voltage\" )\r\n  |> last()",
+                "refId": "Spannung"
+              }
+            ],
+            "title": "AC Seite",
+            "type": "bargauge"
+          },
+          {
+            "datasource": {
+              "type": "datasource",
+              "uid": "-- Mixed --"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "lineInterpolation": "smooth",
+                  "lineStyle": {
+                    "fill": "solid"
+                  },
+                  "lineWidth": 1,
+                  "pointSize": 7,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "dashed"
+                  }
+                },
+                "mappings": [],
+                "min": 0,
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 200
+                    }
+                  ]
+                },
+                "unit": "watt"
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "Sun altitude"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.axisPlacement",
+                      "value": "right"
+                    },
+                    {
+                      "id": "unit",
+                      "value": "degree"
+                    },
+                    {
+                      "id": "displayName",
+                      "value": "Winkel der Sonne"
+                    },
+                    {
+                      "id": "custom.lineStyle",
+                      "value": {
+                        "dash": [
+                          10,
+                          10
+                        ],
+                        "fill": "dash"
+                      }
+                    },
+                    {
+                      "id": "custom.lineWidth",
+                      "value": 2
+                    },
+                    {
+                      "id": "custom.fillOpacity",
+                      "value": 10
+                    },
+                    {
+                      "id": "color",
+                      "value": {
+                        "fixedColor": "yellow",
+                        "mode": "fixed"
+                      }
+                    },
+                    {
+                      "id": "max",
+                      "value": 70
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "weather cloudiness {city=\"Gröbenzell\", city_id=\"2917221\", country=\"DE\", forecast=\"*\"}"
+                  },
+                  "properties": [
+                    {
+                      "id": "displayName",
+                      "value": "Wolken"
+                    },
+                    {
+                      "id": "unit",
+                      "value": "percent"
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "AC Leistung"
+                  },
+                  "properties": [
+                    {
+                      "id": "displayName",
+                      "value": "AC Leistung"
+                    },
+                    {
+                      "id": "custom.lineWidth",
+                      "value": 2
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "AC Power"
+                  },
+                  "properties": [
+                    {
+                      "id": "displayName",
+                      "value": "AC -${__field.labels.phase} Inverter ${__field.labels.inverter}"
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 10,
+              "w": 19,
+              "x": 5,
+              "y": 2
+            },
+            "id": 8,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "query": "from(bucket: \"solar/actual\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output\")\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n\n\n",
+                "refId": "AC Power"
+              },
+              {
+                "datasource": {
+                  "type": "fetzerch-sunandmoon-datasource",
+                  "uid": "${DS_SUN_AND MOON}"
+                },
+                "hide": false,
+                "latitude": "$location_latitude",
+                "longitude": "$location_longitude",
+                "refId": "Sun Altitude",
+                "target": [
+                  "sun_altitude"
+                ]
+              },
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": true,
+                "query": "from(bucket: \"solar/actual\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"input\")\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+                "refId": "DC Power"
+              },
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": false,
+                "query": "from(bucket: \"testing\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"cloudiness\")\r\n  |> filter(fn: (r) => r[\"city_id\"] == \"$city_id\")\r\n  |> filter(fn: (r) => r[\"forecast\"] == \"*\")  \r\n  |> drop(columns: [\"condition_id\", \"condition_main\"])\r\n  |> sort(columns: [\"_time\"], desc: false)\r\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\r\n  |> yield(name: \"last\")",
+                "refId": "Clouds"
+              },
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": true,
+                "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"cloudiness\")\r\n  |> filter(fn: (r) => r[\"city\"] == \"Gröbenzell\")\r\n  |> filter(fn: (r) => r[\"city_id\"] == \"2917221\")\r\n  |> filter(fn: (r) => r[\"forecast\"] == \"*\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> drop( columns: [\"condition_id\", \"condition\",\"condition_main\"])\r\n  |> sort( columns:[\"_time\"])\r\n  |> group( columns:[])\r\n  |> yield(name: \"clouds\")",
+                "refId": "Wolken 2.Versuch"
+              },
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": false,
+                "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"channel\")\r\n  |> filter(fn: (r) => r[\"channel_type\"] == \"AC\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> group(columns: [\"_time\"])\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n  |> group(columns: [\"\"])  \r\n  |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])\r\n  |> rename( columns: {_value: \"AC Total\"})\r\n  |> yield(name: \"AC Total\")\r\n",
+                "refId": "AC Power Total"
+              }
+            ],
+            "title": "Leistungsverlauf",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "celsius"
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byRegexp",
+                    "options": "1.*"
+                  },
+                  "properties": [
+                    {
+                      "id": "displayName",
+                      "value": "Inverter ${__field.labels.inverter}"
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 3,
+              "w": 5,
+              "x": 0,
+              "y": 9
+            },
+            "id": 33,
+            "options": {
+              "colorMode": "none",
+              "graphMode": "area",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "textMode": "auto"
+            },
+            "pluginVersion": "9.4.7",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "query": "from(bucket: \"solar/actual\")\n  |> range(start: - 5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"inverter\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> drop( columns:[\"dtu\", \"_field\"])\n  |> last()",
+                "refId": "A"
+              }
+            ],
+            "title": "Wechselrichter Temperatur",
+            "type": "stat"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "dateTimeAsLocalNoDateIfToday"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 4,
+              "w": 5,
+              "x": 0,
+              "y": 12
+            },
+            "id": 14,
+            "options": {
+              "colorMode": "value",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "limit": 1,
+                "values": true
+              },
+              "textMode": "auto"
+            },
+            "pluginVersion": "9.4.7",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": false,
+                "query": "from(bucket: \"weather\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sunrise\")\n  |> filter(fn: (r) => r[\"city_id\"] == \"${city_id}\")\n  |> map(fn: (r) => ({ r with _value: r._value / 1000000 })) // Millisekunden\n  |> last()\n\n\n",
+                "refId": "A"
+              }
+            ],
+            "title": "Sonnenaufgang",
+            "type": "stat"
+          },
+          {
+            "datasource": {
+              "type": "datasource",
+              "uid": "-- Mixed --"
+            },
+            "description": "Strom und Spannung der einzelnen Kanäle über die Zeit",
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "amp"
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "DC Current"
+                  },
+                  "properties": [
+                    {
+                      "id": "displayName",
+                      "value": "Strom ${__field.labels.inverter}, String ${__field.labels.string}"
+                    },
+                    {
+                      "id": "unit",
+                      "value": "amp"
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "DC Voltage"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "volt"
+                    },
+                    {
+                      "id": "displayName",
+                      "value": "Spannung ${__field.labels.inverter}, String ${__field.labels.string}"
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "Sun altitude"
+                  },
+                  "properties": [
+                    {
+                      "id": "displayName",
+                      "value": "Winkel der Sonne"
+                    },
+                    {
+                      "id": "custom.lineStyle",
+                      "value": {
+                        "dash": [
+                          10,
+                          10
+                        ],
+                        "fill": "dash"
+                      }
+                    },
+                    {
+                      "id": "custom.lineWidth",
+                      "value": 2
+                    },
+                    {
+                      "id": "color",
+                      "value": {
+                        "fixedColor": "yellow",
+                        "mode": "fixed"
+                      }
+                    },
+                    {
+                      "id": "custom.fillOpacity",
+                      "value": 10
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 19,
+              "x": 5,
+              "y": 12
+            },
+            "id": 35,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"input\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"current\")\r\n  |> drop(columns: [\"dtu\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+                "refId": "DC Current"
+              },
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": false,
+                "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"input\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"voltage\")\r\n  |> drop(columns: [\"dtu\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: true)\r\n  |> yield(name: \"mean\")",
+                "refId": "DC Voltage"
+              },
+              {
+                "datasource": {
+                  "type": "fetzerch-sunandmoon-datasource",
+                  "uid": "${DS_SUN_AND MOON}"
+                },
+                "hide": false,
+                "latitude": "$location_latitude",
+                "longitude": "$location_longitude",
+                "refId": "Sun Altitude",
+                "target": [
+                  "sun_altitude"
+                ]
+              }
+            ],
+            "title": "DC Kanäle",
+            "type": "timeseries"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "description": "",
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "dateTimeAsLocalNoDateIfToday"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 4,
+              "w": 5,
+              "x": 0,
+              "y": 16
+            },
+            "id": 15,
+            "options": {
+              "colorMode": "value",
+              "graphMode": "none",
+              "justifyMode": "auto",
+              "orientation": "auto",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "limit": 1,
+                "values": true
+              },
+              "textMode": "auto"
+            },
+            "pluginVersion": "9.4.7",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "hide": false,
+                "query": "from(bucket: \"weather\")\n  |> range(start: today())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sunset\")\n  |> filter(fn: (r) => r[\"city_id\"] == \"${city_id}\")\n  |> map(fn: (r) => ({ r with _value: r._value / 1000000 })) // Millisekunden\n  |> last()\n\n\n",
+                "refId": "A"
+              }
+            ],
+            "title": "Sonnenuntergang",
+            "type": "stat"
+          },
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "${DS_INFLUXDB}"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "displayName": "${__field.labels.inverter}-${__field.labels.string}",
+                "mappings": [],
+                "min": 0,
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "watt"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 5,
+              "x": 0,
+              "y": 20
+            },
+            "id": 29,
+            "options": {
+              "displayMode": "lcd",
+              "minVizHeight": 10,
+              "minVizWidth": 0,
+              "orientation": "auto",
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ],
+                "fields": "",
+                "values": false
+              },
+              "showUnfilled": false
+            },
+            "pluginVersion": "9.4.7",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "query": "from(bucket: \"solar/actual\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"input\")\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\n  |> drop( columns: [\"dtu\"])\n  |> last()",
+                "refId": "A"
+              }
+            ],
+            "title": "DC Leistung Strings",
+            "type": "bargauge"
+          },
+          {
+            "datasource": {
+              "type": "datasource",
+              "uid": "-- Mixed --"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "bars",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "normal"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "watt"
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "DC Power"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "watt"
+                    },
+                    {
+                      "id": "displayName",
+                      "value": "Inverter ${__field.labels.inverter}, String ${__field.labels.string}"
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "Sun altitude"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.drawStyle",
+                      "value": "line"
+                    },
+                    {
+                      "id": "custom.lineWidth",
+                      "value": 2
+                    },
+                    {
+                      "id": "custom.fillOpacity",
+                      "value": 10
+                    },
+                    {
+                      "id": "custom.lineStyle",
+                      "value": {
+                        "dash": [
+                          10,
+                          10
+                        ],
+                        "fill": "dash"
+                      }
+                    },
+                    {
+                      "id": "color",
+                      "value": {
+                        "fixedColor": "yellow",
+                        "mode": "fixed"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 19,
+              "x": 5,
+              "y": 20
+            },
+            "id": 27,
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "mode": "single",
+                "sort": "none"
+              }
+            },
+            "pluginVersion": "9.2.4",
+            "targets": [
+              {
+                "datasource": {
+                  "type": "influxdb",
+                  "uid": "${DS_INFLUXDB}"
+                },
+                "query": "from(bucket: \"solar/actual\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"input\")\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+                "refId": "DC Power"
+              },
+              {
+                "datasource": {
+                  "type": "fetzerch-sunandmoon-datasource",
+                  "uid": "${DS_SUN_AND MOON}"
+                },
+                "hide": false,
+                "latitude": "$location_latitude",
+                "longitude": "$location_longitude",
+                "refId": "A",
+                "target": [
+                  "sun_altitude"
+                ]
+              }
+            ],
+            "title": "DC Leistung auf den Strings",
+            "type": "timeseries"
+          }
+        ],
+        "title": "Verlauf",
+        "type": "row"
+      }
+    ],
+    "refresh": "",
+    "revision": 1,
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "description": "city_id for the OpenWeatherAPI",
+          "hide": 2,
+          "label": "City used to get the weather",
+          "name": "city_id",
+          "query": "${VAR_CITY_ID}",
+          "skipUrlSync": false,
+          "type": "constant",
+          "current": {
+            "value": "${VAR_CITY_ID}",
+            "text": "${VAR_CITY_ID}",
+            "selected": false
+          },
+          "options": [
+            {
+              "value": "${VAR_CITY_ID}",
+              "text": "${VAR_CITY_ID}",
+              "selected": false
+            }
+          ]
+        },
+        {
+          "description": "Used to compute sunaltitude",
+          "hide": 2,
+          "label": "Longitude of the location of your solar panels",
+          "name": "location_longitude",
+          "query": "${VAR_LOCATION_LONGITUDE}",
+          "skipUrlSync": false,
+          "type": "constant",
+          "current": {
+            "value": "${VAR_LOCATION_LONGITUDE}",
+            "text": "${VAR_LOCATION_LONGITUDE}",
+            "selected": false
+          },
+          "options": [
+            {
+              "value": "${VAR_LOCATION_LONGITUDE}",
+              "text": "${VAR_LOCATION_LONGITUDE}",
+              "selected": false
+            }
+          ]
+        },
+        {
+          "description": "Used to compute sun altitude",
+          "hide": 2,
+          "label": "Latitude of the location of your solar panels",
+          "name": "location_latitude",
+          "query": "${VAR_LOCATION_LATITUDE}",
+          "skipUrlSync": false,
+          "type": "constant",
+          "current": {
+            "value": "${VAR_LOCATION_LATITUDE}",
+            "text": "${VAR_LOCATION_LATITUDE}",
+            "selected": false
+          },
+          "options": [
+            {
+              "value": "${VAR_LOCATION_LATITUDE}",
+              "text": "${VAR_LOCATION_LATITUDE}",
+              "selected": false
+            }
+          ]
+        }
+      ]
+    },
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Solaranlage Multi-Inverter",
+    "uid": "szmFI8E4y",
+    "version": 15,
+    "weekStart": ""
+  }
