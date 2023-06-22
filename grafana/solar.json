@@ -401,7 +401,7 @@
               "uid": "${DS_INFLUXDB}"
             },
             "hide": false,
-            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today(), stop: -10s)  // Last time bucket may not have all values\r\n  |> filter( fn: (r) => r[\"_measurement\"] == \"input_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\r\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\r\n |> group(columns: [\"_time\"])\r\n |> aggregateWindow(every: 10s, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n |> group(columns: [\"\"])  \r\n |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
+            "query": "from(bucket: \"solar/actual\")\r\n  |> range(start: today(), stop: -10s)  // Last time bucket may not have all values\r\n  |> filter( fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"power\")\r\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\r\n |> group(columns: [\"_time\"])\r\n |> aggregateWindow(every: 10s, fn: sum, createEmpty: false, timeDst: \"agg_time\")\r\n |> group(columns: [\"\"])  \r\n |> drop(columns: [ \"_start\", \"_stop\", \"agg_time\"])",
             "refId": "B"
           }
         ],
