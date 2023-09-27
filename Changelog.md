@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Documented how `yieldday` works and why it may not be a good idea to use it.
 
+### Fixed
+
+- AC total was not displayed correctly #5
+
 ## [1.1.0] - 2023-06-22
 
 ### Added
