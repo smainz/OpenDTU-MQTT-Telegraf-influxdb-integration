@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Documented how `yieldday` works and why it may not be a good idea to use it.
+- Panel to display long term production per day / per month as proposed by @Banabas in #4.
+  Works for one DTU only.
 
 ### Fixed
 
