@@ -44,6 +44,13 @@ Mapped to InfluxDB as measurement ("table") `output_per_dtu`:
 
 Valid *field*s:  `power` | `yieldtotal` | `yieldday` | `is_valid`
 
+Please note that `yieldday` does not provide the daily production but it provides the
+production since last start of the inverter. If it gets cloudy and the inverter looses
+power during the day and restarts later, `yieldday` will only count since this point in time.
+The value stays even if the inverter loses power (cached in the DTU). This means in the hours
+after midnight, you get the reading of the previous day.
+
+To calculate the power production in a period (e.g., a day), it is better to subtract the first value of `yieldtotal` in a period from the last value of `yieldtotal` in that period.
 
 ## Input (DC) per DTU
 
