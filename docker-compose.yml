@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   telegraf:
     image: telegraf
@@ -7,5 +5,6 @@ services:
     user: 1013:995    # Change to whatever suits your needs
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./telegraf/telegraf.weather.conf:/etc/telegraf/telegraf.d/telegraf.weather.conf
     env_file:
       - telegraf-settings.env
