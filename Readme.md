@@ -56,6 +56,6 @@ Go to your influxdb web frontend and:
 
 - Create an InfluxDB datasource if you not already have it,
 - Create a Sun and Moon datasource
-- import the dashboard from `grafana/solar.yml`,
+- import the dashboard from `grafana/solar.json`,
 - connect it to your Influx datasource `solar/actual`, and
 - edit the template variables of the imported dashboard (for sun altitude and sunrise/sunset)
