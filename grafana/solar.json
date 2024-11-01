@@ -227,7 +227,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "import \"timezone\"\r\noption location = timezone.location(name: \"Europe/Berlin\")\r\n\r\nfrom(bucket: \"solar/actual\")\r\n  |> range(start: - 1y, stop: now())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\r\n  |> drop( columns: [\"dtu\", \"_measurement\", \"_field\"] )\r\n  |> aggregateWindow(every: 1h, fn: last, createEmpty: false)\r\n  |> difference()\r\n  |> timeShift(duration: -1s)\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)",
+          "query": "import \"timezone\"\r\noption location = timezone.location(name: \"Europe/Berlin\")\r\n\r\nfrom(bucket: \"${bucket_opendtu}\")\r\n  |> range(start: - 1y, stop: now())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\r\n  |> drop( columns: [\"dtu\", \"_measurement\", \"_field\"] )\r\n  |> aggregateWindow(every: 1h, fn: last, createEmpty: false)\r\n  |> difference()\r\n  |> timeShift(duration: -1s)\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)",
           "refId": "B"
         }
       ],
@@ -330,7 +330,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
-          "query": "import \"timezone\"\r\noption location = timezone.location(name: \"Europe/Berlin\")\r\n\r\nfrom(bucket: \"solar/actual\")\r\n  |> range(start: - 1y, stop: now())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\r\n  |> drop( columns: [\"dtu\", \"_measurement\", \"_field\"] )\r\n  |> aggregateWindow(every: 1h, fn: last, createEmpty: false)\r\n  |> difference()\r\n  |> timeShift(duration: -1s)\r\n  |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false)",
+          "query": "import \"timezone\"\r\noption location = timezone.location(name: \"Europe/Berlin\")\r\n\r\nfrom(bucket: \"${bucket_opendtu}\")\r\n  |> range(start: - 1y, stop: now())\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"output_per_dtu\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"yieldtotal\")\r\n  |> drop( columns: [\"dtu\", \"_measurement\", \"_field\"] )\r\n  |> aggregateWindow(every: 1h, fn: last, createEmpty: false)\r\n  |> difference()\r\n  |> timeShift(duration: -1s)\r\n  |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false)",
           "refId": "B"
         }
       ],
